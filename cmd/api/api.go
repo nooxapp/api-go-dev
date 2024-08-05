@@ -3,7 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
-	"noox/cmd/routes/test"
+	"noox/cmd/routes/auth"
 )
 
 type APIServer struct {
@@ -16,7 +16,7 @@ func NewAPIServer(addr string) *APIServer {
 
 func (s *APIServer) Run() error {
 	router := http.NewServeMux()
-	messageService := test.NewHandler()
+	messageService := auth.NewHandler()
 	messageService.RegisterRoutes(router)
 
 	router.Handle("/api/v1/", http.StripPrefix("/api/v1", router))
