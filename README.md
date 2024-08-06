@@ -2,5 +2,5 @@
 
 ## TODO
 
-- [] Find a better db than fucking postgresssql
+- [X] Find a better db than fucking postgresssql
 - [] rewrite the entire fucking API
