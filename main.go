@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	db.Ping()
+	db.Init()
 	server := api.NewAPIServer(":8000")
 	server.Run()
 }

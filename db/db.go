@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -12,16 +11,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func Ping() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+var Client *mongo.Client
+
+func Init() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
 	}
+
 	dburl := os.Getenv("DATABASE_URL")
 	if dburl == "" {
-		log.Fatal("Set your 'DATABASE_URL' environment variable. " +
-			"See: " +
-			"www.mongodb.com/docs/drivers/go/current/usage-examples/#environment-variable")
+		log.Fatal("DATABASE_URL not set in .env file")
 	}
 
 	clientOptions := options.Client().ApplyURI(dburl)
@@ -29,21 +28,16 @@ func Ping() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	client, err := mongo.Connect(ctx, clientOptions)
+	var err error
+	Client, err = mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatalf("Failed to connect to MongoDB: %v", err)
 	}
 
-	defer func() {
-		if err := client.Disconnect(ctx); err != nil {
-			log.Fatalf("Failed to disconnect from MongoDB: %v", err)
-		}
-	}()
-
-	err = client.Ping(ctx, nil)
+	err = Client.Ping(ctx, nil)
 	if err != nil {
 		log.Fatalf("Failed to ping MongoDB: %v", err)
 	}
 
-	fmt.Println("Successfully Connected")
+	log.Println("Successfully connected to MongoDB")
 }
