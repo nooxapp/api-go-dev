@@ -32,27 +32,28 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	//shitty way to get the ID PLEASEEE SOMEBODY HELP
+	var lu utils.LoginPayload
 	coll := db.Client.Database("users").Collection("users")
-	err = coll.FindOne(context.TODO(), bson.M{"username": u.Username}).Decode(&u)
+	err = coll.FindOne(context.TODO(), bson.M{"username": u.Username}).Decode(&lu)
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 	//Compare password
-	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(u.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(lu.Password), []byte(u.Password))
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
-	token, err := utils.GenerateJWT()
+	token, err := utils.GenerateJWT(lu.ID)
+	w.WriteHeader(http.StatusOK)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
-		"token": token,
-	})
+	w.Write([]byte(fmt.Sprintf(`{"token": "%s"}`, token)))
 }
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
@@ -79,6 +80,5 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.WriteHeader(http.StatusCreated)
-	fmt.Fprintln(w, `{"message":"User created successfully"}`)
+	w.Write([]byte("Registered successfully"))
 }

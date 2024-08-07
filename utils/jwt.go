@@ -12,7 +12,12 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func GenerateJWT() (string, error) {
+type Claims struct {
+	ID string `json:"id"`
+	jwt.RegisteredClaims
+}
+
+func GenerateJWT(userID string) (string, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -24,8 +29,11 @@ func GenerateJWT() (string, error) {
 	}
 
 	expirationTime := time.Now().Add(time.Minute * 15)
-	claims := &jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(expirationTime),
+	claims := &Claims{
+		ID: userID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(jwtKey))
