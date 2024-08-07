@@ -44,7 +44,7 @@ func GenerateJWT(userID string) (string, error) {
 	return tokenString, nil
 }
 
-func GetSession(r *http.Request) (*jwt.RegisteredClaims, error) {
+func GetSession(r *http.Request) (*Claims, error) {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -59,7 +59,7 @@ func GetSession(r *http.Request) (*jwt.RegisteredClaims, error) {
 
 	tokenStr := cookie.Value
 	jwtKey := os.Getenv("JWT_KEY")
-	claims := &jwt.RegisteredClaims{}
+	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(jwtKey), nil
 	})
