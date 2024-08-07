@@ -33,14 +33,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	coll := db.Client.Database("users").Collection("users")
-	var storedUser utils.RegisterPayload
-	err = coll.FindOne(context.TODO(), bson.M{"username": u.Username}).Decode(&storedUser)
+	err = coll.FindOne(context.TODO(), bson.M{"username": u.Username}).Decode(&u)
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return
 	}
 	//Compare password
-	err = bcrypt.CompareHashAndPassword([]byte(storedUser.Password), []byte(u.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(u.Password))
 	if err != nil {
 		http.Error(w, "Invalid username or password", http.StatusUnauthorized)
 		return

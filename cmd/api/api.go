@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"noox/cmd/routes/auth"
+	"noox/cmd/routes/token"
 )
 
 type APIServer struct {
@@ -16,9 +17,12 @@ func NewAPIServer(addr string) *APIServer {
 
 func (s *APIServer) Run() error {
 	router := http.NewServeMux()
-	messageService := auth.NewHandler()
-	messageService.RegisterRoutes(router)
-
+	//auth services
+	auth := auth.NewHandler()
+	auth.RegisterRoutes(router)
+	token := token.NewHandler()
+	token.RegisterRoutes(router)
+	//
 	router.Handle("/api/v1/", http.StripPrefix("/api/v1", router))
 
 	fmt.Println("Listening on http://localhost" + s.addr + "/api/v1/")

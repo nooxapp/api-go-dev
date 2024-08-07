@@ -2,7 +2,9 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
@@ -32,4 +34,35 @@ func GenerateJWT() (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func GetSession(r *http.Request) (*jwt.RegisteredClaims, error) {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+	cookie, err := r.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			return nil, fmt.Errorf("Unauthorized")
+		}
+		return nil, err
+	}
+
+	tokenStr := cookie.Value
+	jwtKey := os.Getenv("JWT_KEY")
+	claims := &jwt.RegisteredClaims{}
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtKey), nil
+	})
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return nil, fmt.Errorf("invalid token signature")
+		}
+		return nil, err
+	}
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+	return claims, nil
 }
