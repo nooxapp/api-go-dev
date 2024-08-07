@@ -31,12 +31,12 @@ func (h *Handler) token(w http.ResponseWriter, r *http.Request) {
 	userID := claims.ID
 	coll := db.Client.Database("users").Collection("users")
 	filter := bson.D{{Key: "_id", Value: userID}}
-	projection := bson.D{
+	projections := bson.D{
 		{Key: "username", Value: 1},
 	}
 
 	var result bson.M
-	err = coll.FindOne(context.TODO(), filter, options.FindOne().SetProjection(projection)).Decode(&result)
+	err = coll.FindOne(context.TODO(), filter, options.FindOne().SetProjection(projections)).Decode(&result)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			http.Error(w, "User not found", http.StatusNotFound)
@@ -53,6 +53,5 @@ func (h *Handler) token(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte("You are authenticated " + userID))
 	w.Write(resultJSON)
 }

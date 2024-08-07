@@ -33,7 +33,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//shitty way to get the ID PLEASEEE SOMEBODY HELP
-	var lu utils.LoginPayload
+	var lu utils.RegisterPayload
 	coll := db.Client.Database("users").Collection("users")
 	err = coll.FindOne(context.TODO(), bson.M{"username": u.Username}).Decode(&lu)
 	if err != nil {
