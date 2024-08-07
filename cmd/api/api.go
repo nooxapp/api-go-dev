@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"noox/cmd/routes/auth"
+	"noox/cmd/routes/messages"
 	"noox/cmd/routes/token"
 )
 
@@ -22,7 +23,9 @@ func (s *APIServer) Run() error {
 	auth.RegisterRoutes(router)
 	token := token.NewHandler()
 	token.RegisterRoutes(router)
-	//
+	//messages
+	messages := messages.NewHandler()
+	messages.RegisterRoutes(router)
 	router.Handle("/api/v1/", http.StripPrefix("/api/v1", router))
 
 	fmt.Println("Listening on http://localhost" + s.addr + "/api/v1/")

@@ -10,3 +10,7 @@ type LoginPayload struct {
 	Username string `json:"Username"`
 	Password string `json:"Password"`
 }
+
+type MesagePayload struct {
+	Message string `json:"message"`
+}
